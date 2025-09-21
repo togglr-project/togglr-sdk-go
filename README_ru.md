@@ -1,14 +1,14 @@
 # Togglr Go SDK
 
-Go SDK for working with Togglr - feature flag management system.
+Go SDK для работы с Togglr - системой управления фича-флагами.
 
-## Installation
+## Установка
 
 ```bash
 go get github.com/rom8726/togglr-sdk-go
 ```
 
-## Quick Start
+## Быстрый старт
 
 ```go
 package main
@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-    // Create client with default configuration
+    // Создание клиента с настройками по умолчанию
     client, err := togglr.NewClientWithDefaults("your-api-key-here",
         togglr.WithBaseURL("http://localhost:8090"),
         togglr.WithTimeout(1*time.Second),
@@ -33,13 +33,13 @@ func main() {
     }
     defer client.Close()
 
-    // Create request context
+    // Создание контекста запроса
     ctx := togglr.NewContext().
         WithUserID("user123").
         WithCountry("US").
         WithDeviceType("mobile")
 
-    // Evaluate feature flag
+    // Оценка фича-флага
     value, enabled, found, err := client.Evaluate("new_ui", ctx)
     if err != nil {
         log.Fatal(err)
@@ -51,15 +51,15 @@ func main() {
 }
 ```
 
-## Configuration
+## Конфигурация
 
-### Creating a client
+### Создание клиента
 
 ```go
-// With default settings
+// С настройками по умолчанию
 client, err := togglr.NewClientWithDefaults("api-key")
 
-// With custom configuration
+// С кастомной конфигурацией
 cfg := togglr.DefaultConfig("api-key")
 cfg.BaseURL = "https://api.togglr.com"
 cfg.Timeout = 2 * time.Second
@@ -68,7 +68,7 @@ cfg.Retries = 3
 client, err := togglr.NewClient(cfg)
 ```
 
-### Functional options
+### Функциональные опции
 
 ```go
 client, err := togglr.NewClientWithDefaults("api-key",
@@ -80,9 +80,9 @@ client, err := togglr.NewClientWithDefaults("api-key",
 )
 ```
 
-## Usage
+## Использование
 
-### Creating request context
+### Создание контекста запроса
 
 ```go
 ctx := togglr.NewContext().
@@ -96,46 +96,46 @@ ctx := togglr.NewContext().
     WithLanguage("en-US")
 ```
 
-### Evaluating feature flags
+### Оценка фича-флагов
 
 ```go
-// Full evaluation
+// Полная оценка
 value, enabled, found, err := client.Evaluate("feature_key", ctx)
 
-// Simple enabled check
+// Простая проверка включенности
 isEnabled, err := client.IsEnabled("feature_key", ctx)
 
-// With default value
+// С значением по умолчанию
 defaultValue := client.EvaluateBoolOrDefault("feature_key", ctx, false)
 ```
 
-### Working with context
+### Работа с контекстом
 
 ```go
-// With cancellation context
+// С контекстом отмены
 ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 defer cancel()
 
 value, enabled, found, err := client.EvaluateWithContext(ctx, "api-key", "feature_key", reqCtx)
 ```
 
-## Caching
+## Кэширование
 
-The SDK supports optional caching of evaluation results:
+SDK поддерживает опциональное кэширование результатов оценки:
 
 ```go
 client, err := togglr.NewClientWithDefaults("api-key",
-    togglr.WithCache(1000, 10*time.Second), // cache size and TTL
+    togglr.WithCache(1000, 10*time.Second), // размер кэша и TTL
 )
 ```
 
-## Retries
+## Повторные попытки
 
-The SDK automatically retries requests on temporary errors:
+SDK автоматически повторяет запросы при временных ошибках:
 
 ```go
 client, err := togglr.NewClientWithDefaults("api-key",
-    togglr.WithRetries(3), // number of attempts
+    togglr.WithRetries(3), // количество попыток
     togglr.WithBackoff(togglr.Backoff{
         BaseDelay: 100 * time.Millisecond,
         MaxDelay:  2 * time.Second,
@@ -144,62 +144,62 @@ client, err := togglr.NewClientWithDefaults("api-key",
 )
 ```
 
-## Logging and Metrics
+## Логирование и метрики
 
 ```go
-// Custom logger
+// Кастомный логгер
 logger := &MyLogger{}
 client, err := togglr.NewClientWithDefaults("api-key",
     togglr.WithLogger(logger),
 )
 
-// Custom metrics
+// Кастомные метрики
 metrics := &MyMetrics{}
 client, err := togglr.NewClientWithDefaults("api-key",
     togglr.WithMetrics(metrics),
 )
 ```
 
-## Error Handling
+## Обработка ошибок
 
 ```go
 value, enabled, found, err := client.Evaluate("feature_key", ctx)
 if err != nil {
     switch {
     case errors.Is(err, togglr.ErrUnauthorized):
-        // Authorization error
+        // Ошибка авторизации
     case errors.Is(err, togglr.ErrBadRequest):
-        // Bad request
+        // Неверный запрос
     default:
-        // Other error
+        // Другая ошибка
     }
 }
 ```
 
-## Client Generation
+## Генерация клиента
 
-To update the generated client from OpenAPI specification:
+Для обновления сгенерированного клиента из OpenAPI спецификации:
 
 ```bash
 make generate
 ```
 
-## Building and Testing
+## Сборка и тестирование
 
 ```bash
-# Build
+# Сборка
 make build
 
-# Testing
+# Тестирование
 make test
 
-# Linting
+# Линтинг
 make lint
 
-# Clean
+# Очистка
 make clean
 ```
 
-## Examples
+## Примеры
 
-Complete usage examples are located in `examples/`.
+Полные примеры использования находятся в `pkg/togglr/examples/`.
