@@ -119,7 +119,7 @@ func (c *Client) evaluateWithRetries(
 		}
 
 		// Convert map to api.EvaluateRequest
-		evalReq := make(api.EvaluateRequest)
+		evalReq := make(api.EvaluateRequest, len(req))
 		for k, v := range req {
 			// Convert value to jx.Raw
 			if raw, err := json.Marshal(v); err == nil {
