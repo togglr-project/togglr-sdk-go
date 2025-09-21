@@ -106,7 +106,7 @@ value, enabled, found, err := client.Evaluate("feature_key", ctx)
 isEnabled, err := client.IsEnabled("feature_key", ctx)
 
 // With default value
-defaultValue := client.EvaluateBoolOrDefault("feature_key", ctx, false)
+isEnabled = client.IsEnabledOrDefault("feature_key", ctx, false)
 ```
 
 ### Working with context

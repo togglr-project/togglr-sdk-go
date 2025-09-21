@@ -56,8 +56,8 @@ func main() {
 	fmt.Printf("Feature %s is enabled: %t\n", featureKey, isEnabled)
 
 	// Use default value fallback
-	defaultEnabled := client.EvaluateBoolOrDefault(featureKey, reqCtx, false)
-	fmt.Printf("Feature %s with default fallback: %t\n", featureKey, defaultEnabled)
+	isEnabled = client.IsEnabledOrDefault(featureKey, reqCtx, false)
+	fmt.Printf("Feature %s with default fallback: %t\n", featureKey, isEnabled)
 
 	// Example with context cancellation
 	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)

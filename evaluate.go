@@ -84,8 +84,8 @@ func (c *Client) IsEnabled(featureKey string, req RequestContext) (bool, error) 
 	return enabled, nil
 }
 
-// EvaluateBoolOrDefault evaluates a feature and returns a default value on error
-func (c *Client) EvaluateBoolOrDefault(featureKey string, req RequestContext, def bool) bool {
+// IsEnabledOrDefault evaluates a feature and returns a default value on error
+func (c *Client) IsEnabledOrDefault(featureKey string, req RequestContext, def bool) bool {
 	enabled, err := c.IsEnabled(featureKey, req)
 	if err != nil {
 		c.logger.Warn("evaluation failed, using default",
