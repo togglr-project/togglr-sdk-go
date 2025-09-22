@@ -42,14 +42,8 @@ func (c *Client) EvaluateWithContext(
 	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
 	defer cancel()
 
-	// Convert RequestContext to EvaluateRequest for API call
-	reqMap := make(map[string]any)
-	for k, v := range req {
-		reqMap[k] = v
-	}
-
 	// Make API call with retries
-	value, enabled, found, err = c.evaluateWithRetries(ctx, featureKey, reqMap)
+	value, enabled, found, err = c.evaluateWithRetries(ctx, featureKey, req)
 
 	// Record metrics
 	c.metrics.ObserveEvaluateLatency(time.Since(start))
@@ -101,7 +95,7 @@ func (c *Client) IsEnabledOrDefault(featureKey string, req RequestContext, def b
 func (c *Client) evaluateWithRetries(
 	ctx context.Context,
 	featureKey string,
-	req map[string]any,
+	req RequestContext,
 ) (string, bool, bool, error) {
 	var lastErr error
 
@@ -127,7 +121,7 @@ func (c *Client) evaluateWithRetries(
 			}
 		}
 
-		// Make API call using ogen client
+		// Make API call using the ogen client
 		params := api.SdkV1FeaturesFeatureKeyEvaluatePostParams{
 			FeatureKey: featureKey,
 		}
