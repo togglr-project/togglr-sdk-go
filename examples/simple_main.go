@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/rom8726/togglr-sdk-go"
+	"github.com/togglr-project/togglr-sdk-go"
 )
 
 func main() {

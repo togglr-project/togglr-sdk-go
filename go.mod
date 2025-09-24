@@ -1,4 +1,4 @@
-module github.com/rom8726/togglr-sdk-go
+module github.com/togglr-project/togglr-sdk-go
 
 go 1.23.0
 

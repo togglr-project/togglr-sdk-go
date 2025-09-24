@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	api "github.com/rom8726/togglr-sdk-go/internal/generated/client"
+	api "github.com/togglr-project/togglr-sdk-go/internal/generated/client"
 )
 
 // Client represents the Togglr SDK client

@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-faster/jx"
 
-	"github.com/rom8726/togglr-sdk-go/internal/fingerprint"
-	api "github.com/rom8726/togglr-sdk-go/internal/generated/client"
+	"github.com/togglr-project/togglr-sdk-go/internal/fingerprint"
+	api "github.com/togglr-project/togglr-sdk-go/internal/generated/client"
 )
 
 // EvaluateWithContext evaluates a feature with the given context

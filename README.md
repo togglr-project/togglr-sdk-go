@@ -5,7 +5,7 @@ Go SDK for working with Togglr - feature flag management system.
 ## Installation
 
 ```bash
-go get github.com/rom8726/togglr-sdk-go
+go get github.com/togglr-project/togglr-sdk-go
 ```
 
 ## Quick Start
@@ -18,7 +18,7 @@ import (
     "log"
     "time"
     
-    "github.com/rom8726/togglr-sdk-go"
+    "github.com/togglr-project/togglr-sdk-go"
 )
 
 func main() {
