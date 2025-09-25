@@ -1,9 +1,11 @@
 package togglr
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type EvalResult struct {
@@ -58,7 +60,7 @@ func (r *EvalResult) Bool() (bool, error) {
 	switch strings.ToLower(r.rawValue) {
 	case "true", "1", "yes", "on":
 		return true, nil
-	case "false", "0", "no", "off":
+	case "false", "0", "no", "off", "":
 		return false, nil
 	default:
 		return false, fmt.Errorf("cannot convert %q to bool", r.rawValue)
@@ -71,6 +73,10 @@ func (r *EvalResult) Int32() (int32, error) {
 	}
 
 	if !r.found || !r.enabled {
+		return 0, nil
+	}
+
+	if r.rawValue == "" {
 		return 0, nil
 	}
 
@@ -91,6 +97,10 @@ func (r *EvalResult) UInt32() (uint32, error) {
 		return 0, nil
 	}
 
+	if r.rawValue == "" {
+		return 0, nil
+	}
+
 	val, err := strconv.ParseUint(r.rawValue, 10, 32)
 	if err != nil {
 		return 0, err
@@ -105,6 +115,10 @@ func (r *EvalResult) Float32() (float32, error) {
 	}
 
 	if !r.found || !r.enabled {
+		return 0, nil
+	}
+
+	if r.rawValue == "" {
 		return 0, nil
 	}
 
@@ -125,6 +139,10 @@ func (r *EvalResult) Int64() (int64, error) {
 		return 0, nil
 	}
 
+	if r.rawValue == "" {
+		return 0, nil
+	}
+
 	return strconv.ParseInt(r.rawValue, 10, 64)
 }
 
@@ -134,6 +152,10 @@ func (r *EvalResult) UInt64() (uint64, error) {
 	}
 
 	if !r.found || !r.enabled {
+		return 0, nil
+	}
+
+	if r.rawValue == "" {
 		return 0, nil
 	}
 
@@ -149,5 +171,41 @@ func (r *EvalResult) Float64() (float64, error) {
 		return 0, nil
 	}
 
+	if r.rawValue == "" {
+		return 0, nil
+	}
+
 	return strconv.ParseFloat(r.rawValue, 64)
+}
+
+func (r *EvalResult) JSON(v interface{}) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	if !r.found || !r.enabled {
+		return nil
+	}
+
+	if r.rawValue == "" {
+		return nil
+	}
+
+	return json.Unmarshal([]byte(r.rawValue), v)
+}
+
+func (r *EvalResult) Duration() (time.Duration, error) {
+	if r.err != nil {
+		return 0, r.err
+	}
+
+	if !r.found || !r.enabled {
+		return 0, nil
+	}
+
+	if r.rawValue == "" {
+		return 0, nil
+	}
+
+	return time.ParseDuration(r.rawValue)
 }
