@@ -19,7 +19,7 @@ func (c *Client) EvaluateWithContext(
 	ctx context.Context,
 	featureKey string,
 	req RequestContext,
-) (value string, enabled bool, found bool, err error) {
+) EvalResult {
 	start := time.Now()
 	c.metrics.IncEvaluateRequest()
 
@@ -33,7 +33,13 @@ func (c *Client) EvaluateWithContext(
 			c.metrics.IncCacheHit()
 			c.logger.Debug("cache hit", "feature_key", featureKey, "cache_key", cacheKey)
 
-			return entry.Value, entry.Enabled, entry.Found, nil
+			return EvalResult{
+				featureKey: featureKey,
+				rawValue:   entry.Value,
+				enabled:    entry.Enabled,
+				found:      entry.Found,
+				err:        nil,
+			}
 		}
 		c.metrics.IncCacheMiss()
 	}
@@ -43,7 +49,7 @@ func (c *Client) EvaluateWithContext(
 	defer cancel()
 
 	// Make API call with retries
-	value, enabled, found, err = c.evaluateWithRetries(ctx, featureKey, req)
+	value, enabled, found, err := c.evaluateWithRetries(ctx, featureKey, req)
 
 	// Record metrics
 	c.metrics.ObserveEvaluateLatency(time.Since(start))
@@ -56,26 +62,32 @@ func (c *Client) EvaluateWithContext(
 		c.cache.Set(cacheKey, value, enabled, found)
 	}
 
-	return value, enabled, found, err
+	return EvalResult{
+		featureKey: featureKey,
+		rawValue:   value,
+		enabled:    enabled,
+		found:      found,
+		err:        err,
+	}
 }
 
 // Evaluate evaluates a feature using the configured API key
-func (c *Client) Evaluate(featureKey string, req RequestContext) (value string, enabled bool, found bool, err error) {
+func (c *Client) Evaluate(featureKey string, req RequestContext) EvalResult {
 	return c.EvaluateWithContext(context.Background(), featureKey, req)
 }
 
 // IsEnabled checks if a feature is enabled
 func (c *Client) IsEnabled(featureKey string, req RequestContext) (bool, error) {
-	_, enabled, found, err := c.Evaluate(featureKey, req)
-	if err != nil {
+	res := c.Evaluate(featureKey, req)
+	if err := res.Err(); err != nil {
 		return false, err
 	}
 
-	if !found {
+	if !res.Found() {
 		return false, ErrFeatureNotFound
 	}
 
-	return enabled, nil
+	return res.Enabled(), nil
 }
 
 // IsEnabledOrDefault evaluates a feature and returns a default value on error

@@ -40,14 +40,14 @@ func main() {
         WithDeviceType("mobile")
 
     // Оценка фича-флага
-    value, enabled, found, err := client.Evaluate("new_ui", ctx)
-    if err != nil {
-        log.Fatal(err)
-    }
+	res := client.Evaluate("new_ui", ctx)
+	if err:= res.Err(); err != nil {
+		log.Fatal(err)
+	}
 
-    if found {
-        fmt.Printf("Feature enabled: %t, value: %s\n", enabled, value)
-    }
+	if res.Found() {
+		fmt.Printf("Feature enabled: %t, value: %s\n", res.Enabled(), res.Value())
+	}
 }
 ```
 
@@ -100,7 +100,7 @@ ctx := togglr.NewContext().
 
 ```go
 // Полная оценка
-value, enabled, found, err := client.Evaluate("feature_key", ctx)
+res := client.Evaluate("feature_key", ctx)
 
 // Простая проверка включенности
 isEnabled, err := client.IsEnabled("feature_key", ctx)
@@ -116,7 +116,7 @@ isEnabled = client.IsEnabledOrDefault("feature_key", ctx, false)
 ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 defer cancel()
 
-value, enabled, found, err := client.EvaluateWithContext(ctx, "api-key", "feature_key", reqCtx)
+res := client.EvaluateWithContext(ctx, "api-key", "feature_key", reqCtx)
 ```
 
 ## Кэширование
@@ -163,8 +163,8 @@ client, err := togglr.NewClientWithDefaults("api-key",
 ## Обработка ошибок
 
 ```go
-value, enabled, found, err := client.Evaluate("feature_key", ctx)
-if err != nil {
+res := client.Evaluate("feature_key", ctx)
+if err := res.Err(); err != nil {
     switch {
     case errors.Is(err, togglr.ErrUnauthorized):
         // Ошибка авторизации

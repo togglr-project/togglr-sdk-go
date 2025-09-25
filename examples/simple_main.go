@@ -33,18 +33,18 @@ func main() {
 
 	// Evaluate a feature
 	featureKey := "new_ui"
-	value, enabled, found, err := client.Evaluate(featureKey, reqCtx)
-	if err != nil {
+	res := client.Evaluate(featureKey, reqCtx)
+	if err := res.Err(); err != nil {
 		log.Printf("Error evaluating feature %s: %v", featureKey, err)
 		return
 	}
 
-	if !found {
+	if !res.Found() {
 		fmt.Printf("Feature %s not found\n", featureKey)
 		return
 	}
 
-	fmt.Printf("Feature %s: enabled=%t, value=%s\n", featureKey, enabled, value)
+	fmt.Printf("Feature %s: enabled=%t, value=%s\n", featureKey, res.Enabled(), res.Value())
 
 	// Use convenience method for boolean flags
 	isEnabled, err := client.IsEnabled(featureKey, reqCtx)
@@ -63,13 +63,13 @@ func main() {
 	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
-	value2, enabled2, found2, err := client.EvaluateWithContext(ctxWithTimeout, "another_feature", reqCtx)
-	if err != nil {
+	res = client.EvaluateWithContext(ctxWithTimeout, "another_feature", reqCtx)
+	if err := res.Err(); err != nil {
 		log.Printf("Error with context: %v", err)
 		return
 	}
 
-	fmt.Printf("Another feature: enabled=%t, value=%s, found=%t\n", enabled2, value2, found2)
+	fmt.Printf("Another feature: enabled=%t, value=%s, found=%t\n", res.Enabled(), res.Value(), res.Found())
 
 	// Health check
 	if err := client.HealthCheck(context.Background()); err != nil {
