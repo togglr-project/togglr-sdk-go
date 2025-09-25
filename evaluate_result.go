@@ -40,6 +40,10 @@ func (r *EvalResult) Value() string {
 	return r.rawValue
 }
 
+func (r *EvalResult) FeatureKey() string {
+	return r.featureKey
+}
+
 func (r *EvalResult) Result() (string, error) {
 	if r.err != nil {
 		return "", r.err
