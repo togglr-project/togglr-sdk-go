@@ -91,7 +91,7 @@ func (r *EvalResult) UInt32() (uint32, error) {
 		return 0, nil
 	}
 
-	val, err := strconv.ParseUint(r.rawValue, 10, 64)
+	val, err := strconv.ParseUint(r.rawValue, 10, 32)
 	if err != nil {
 		return 0, err
 	}
@@ -108,7 +108,7 @@ func (r *EvalResult) Float32() (float32, error) {
 		return 0, nil
 	}
 
-	val, err := strconv.ParseFloat(r.rawValue, 64)
+	val, err := strconv.ParseFloat(r.rawValue, 32)
 	if err != nil {
 		return 0, err
 	}
