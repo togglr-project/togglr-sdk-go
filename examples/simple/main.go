@@ -88,7 +88,7 @@ func main() {
 	if err != nil {
 		log.Printf("Error reporting feature error: %v", err)
 	} else {
-		fmt.Printf("Feature health after error report: enabled=%t, auto_disabled=%t\n, pendiong_change=%t\n",
+		fmt.Printf("Feature health after error report: enabled=%t, auto_disabled=%t, pending_change=%t\n",
 			health.Enabled, health.AutoDisabled, isPending)
 		if health.ErrorRate != nil {
 			fmt.Printf("Error rate: %.2f%%\n", *health.ErrorRate*100)
@@ -100,8 +100,8 @@ func main() {
 	if err != nil {
 		log.Printf("Error getting feature health: %v", err)
 	} else {
-		fmt.Printf("Feature health: enabled=%t, auto_disabled=%t\n",
-			featureHealth.Enabled, featureHealth.AutoDisabled)
+		fmt.Printf("Feature health: enabled=%t, auto_disabled=%t, pending_change=%t\n",
+			featureHealth.Enabled, featureHealth.AutoDisabled, isPending)
 		if featureHealth.ErrorRate != nil {
 			fmt.Printf("Error rate: %.2f%%\n", *featureHealth.ErrorRate*100)
 		}

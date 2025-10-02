@@ -116,8 +116,64 @@ isEnabled = client.IsEnabledOrDefault("feature_key", ctx, false)
 ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 defer cancel()
 
-res := client.EvaluateWithContext(ctx, "api-key", "feature_key", reqCtx)
+res := client.EvaluateWithContext(ctx, "feature_key", reqCtx)
 ```
+
+### Error Reporting and Auto-Disable
+
+The SDK supports reporting feature execution errors for auto-disable functionality:
+
+```go
+// Create an error report
+errorReport := togglr.NewErrorReport("timeout", "Service did not respond in 5s").
+    WithContext("service", "payment-gateway").
+    WithContext("timeout_ms", 5000).
+    WithContext("retry_count", 3)
+
+// Report the error
+health, isPending, err := client.ReportError(context.Background(), "feature_key", errorReport)
+if err != nil {
+    log.Printf("Error reporting: %v", err)
+} else {
+    fmt.Printf("Feature enabled: %t, auto_disabled: %t, pending_change: %t\n", 
+        health.Enabled, health.AutoDisabled, isPending)
+    
+    if isPending {
+        fmt.Println("Change is pending approval")
+    }
+}
+```
+
+### Feature Health Monitoring
+
+Check the health status of features:
+
+```go
+// Get feature health status
+health, err := client.GetFeatureHealth(context.Background(), "feature_key")
+if err != nil {
+    log.Printf("Error getting health: %v", err)
+} else {
+    fmt.Printf("Feature Health:\n")
+    fmt.Printf("  Enabled: %t\n", health.Enabled)
+    fmt.Printf("  Auto Disabled: %t\n", health.AutoDisabled)
+    if health.ErrorRate != nil {
+        fmt.Printf("  Error Rate: %.2f%%\n", *health.ErrorRate*100)
+    }
+    if health.LastErrorAt != nil {
+        fmt.Printf("  Last Error: %s\n", health.LastErrorAt.Format(time.RFC3339))
+    }
+}
+
+// Simple health check
+isHealthy, err := client.IsFeatureHealthy(context.Background(), "feature_key")
+if err != nil {
+    log.Printf("Error checking health: %v", err)
+} else {
+    fmt.Printf("Feature is healthy: %t\n", isHealthy)
+}
+```
+
 
 ## Caching
 
@@ -173,6 +229,38 @@ if err := res.Err(); err != nil {
     default:
         // Other error
     }
+}
+```
+
+### Error Report Types
+
+```go
+// Create different types of error reports
+timeoutError := togglr.NewErrorReport("timeout", "Service timeout").
+    WithContext("service", "payment-gateway").
+    WithContext("timeout_ms", 5000)
+
+validationError := togglr.NewErrorReport("validation", "Invalid data").
+    WithContext("field", "email").
+    WithContext("error_code", "INVALID_FORMAT")
+
+serviceError := togglr.NewErrorReport("service_unavailable", "Service down").
+    WithContext("service", "database").
+    WithContext("status_code", 503)
+```
+
+### Feature Health Types
+
+```go
+// FeatureHealth provides detailed health information
+type FeatureHealth struct {
+    FeatureKey     string     // Feature identifier
+    EnvironmentKey string     // Environment identifier
+    Enabled        bool       // Whether feature is enabled
+    AutoDisabled   bool       // Whether feature was auto-disabled
+    ErrorRate      *float32   // Error rate percentage (optional)
+    Threshold      *float32   // Error threshold (optional)
+    LastErrorAt    *time.Time // Last error timestamp (optional)
 }
 ```
 

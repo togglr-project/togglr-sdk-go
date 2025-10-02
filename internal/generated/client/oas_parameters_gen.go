@@ -2,6 +2,16 @@
 
 package api
 
+// GetFeatureHealthParams is parameters of GetFeatureHealth operation.
+type GetFeatureHealthParams struct {
+	FeatureKey string
+}
+
+// ReportFeatureErrorParams is parameters of ReportFeatureError operation.
+type ReportFeatureErrorParams struct {
+	FeatureKey string
+}
+
 // SdkV1FeaturesFeatureKeyEvaluatePostParams is parameters of POST /sdk/v1/features/{feature_key}/evaluate operation.
 type SdkV1FeaturesFeatureKeyEvaluatePostParams struct {
 	FeatureKey string
