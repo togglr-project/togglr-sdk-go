@@ -84,15 +84,11 @@ func main() {
 		WithContext("timeout_ms", 5000).
 		WithContext("retry_count", 3)
 
-	health, isPending, err := client.ReportError(context.Background(), featureKey, errorReport)
+	err = client.ReportError(context.Background(), featureKey, errorReport)
 	if err != nil {
 		log.Printf("Error reporting feature error: %v", err)
 	} else {
-		fmt.Printf("Feature health after error report: enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			health.Enabled, health.AutoDisabled, isPending)
-		if health.ErrorRate != nil {
-			fmt.Printf("Error rate: %.2f%%\n", *health.ErrorRate*100)
-		}
+		fmt.Printf("Error reported successfully - queued for processing\n")
 	}
 
 	// Example: Get feature health status
@@ -100,8 +96,8 @@ func main() {
 	if err != nil {
 		log.Printf("Error getting feature health: %v", err)
 	} else {
-		fmt.Printf("Feature health: enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			featureHealth.Enabled, featureHealth.AutoDisabled, isPending)
+		fmt.Printf("Feature health: enabled=%t, auto_disabled=%t\n",
+			featureHealth.Enabled, featureHealth.AutoDisabled)
 		if featureHealth.ErrorRate != nil {
 			fmt.Printf("Error rate: %.2f%%\n", *featureHealth.ErrorRate*100)
 		}

@@ -131,16 +131,11 @@ errorReport := togglr.NewErrorReport("timeout", "Service did not respond in 5s")
     WithContext("retry_count", 3)
 
 // Report the error
-health, isPending, err := client.ReportError(context.Background(), "feature_key", errorReport)
+err := client.ReportError(context.Background(), "feature_key", errorReport)
 if err != nil {
     log.Printf("Error reporting: %v", err)
 } else {
-    fmt.Printf("Feature enabled: %t, auto_disabled: %t, pending_change: %t\n", 
-        health.Enabled, health.AutoDisabled, isPending)
-    
-    if isPending {
-        fmt.Println("Change is pending approval")
-    }
+    fmt.Println("Error reported successfully - queued for processing")
 }
 ```
 
@@ -214,6 +209,95 @@ metrics := &MyMetrics{}
 client, err := togglr.NewClientWithDefaults("api-key",
     togglr.WithMetrics(metrics),
 )
+```
+
+### Metrics Interface
+
+The SDK provides a comprehensive metrics interface for monitoring:
+
+```go
+type Metrics interface {
+    // Evaluation metrics
+    IncEvaluateRequest()
+    IncEvaluateError(code string)
+    ObserveEvaluateLatency(d time.Duration)
+    
+    // Error reporting metrics
+    IncErrorReportRequest()
+    IncErrorReportError(code string)
+    ObserveErrorReportLatency(d time.Duration)
+    
+    // Feature health metrics
+    IncFeatureHealthRequest()
+    IncFeatureHealthError(code string)
+    ObserveFeatureHealthLatency(d time.Duration)
+    
+    // Cache metrics
+    IncCacheHit()
+    IncCacheMiss()
+}
+```
+
+### Metrics Examples
+
+```go
+type MyMetrics struct {
+    evaluateRequests    prometheus.Counter
+    evaluateErrors      prometheus.Counter
+    evaluateLatency     prometheus.Histogram
+    errorReportRequests prometheus.Counter
+    errorReportErrors   prometheus.Counter
+    errorReportLatency  prometheus.Histogram
+    healthRequests      prometheus.Counter
+    healthErrors        prometheus.Counter
+    healthLatency       prometheus.Histogram
+    cacheHits           prometheus.Counter
+    cacheMisses         prometheus.Counter
+}
+
+func (m *MyMetrics) IncEvaluateRequest() {
+    m.evaluateRequests.Inc()
+}
+
+func (m *MyMetrics) IncEvaluateError(code string) {
+    m.evaluateErrors.WithLabelValues(code).Inc()
+}
+
+func (m *MyMetrics) ObserveEvaluateLatency(d time.Duration) {
+    m.evaluateLatency.Observe(d.Seconds())
+}
+
+func (m *MyMetrics) IncErrorReportRequest() {
+    m.errorReportRequests.Inc()
+}
+
+func (m *MyMetrics) IncErrorReportError(code string) {
+    m.errorReportErrors.WithLabelValues(code).Inc()
+}
+
+func (m *MyMetrics) ObserveErrorReportLatency(d time.Duration) {
+    m.errorReportLatency.Observe(d.Seconds())
+}
+
+func (m *MyMetrics) IncFeatureHealthRequest() {
+    m.healthRequests.Inc()
+}
+
+func (m *MyMetrics) IncFeatureHealthError(code string) {
+    m.healthErrors.WithLabelValues(code).Inc()
+}
+
+func (m *MyMetrics) ObserveFeatureHealthLatency(d time.Duration) {
+    m.healthLatency.Observe(d.Seconds())
+}
+
+func (m *MyMetrics) IncCacheHit() {
+    m.cacheHits.Inc()
+}
+
+func (m *MyMetrics) IncCacheMiss() {
+    m.cacheMisses.Inc()
+}
 ```
 
 ## Error Handling

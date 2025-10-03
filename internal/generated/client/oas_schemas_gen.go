@@ -409,8 +409,7 @@ func (s *FeatureHealth) SetLastErrorAt(val OptDateTime) {
 	s.LastErrorAt = val
 }
 
-func (*FeatureHealth) getFeatureHealthRes()   {}
-func (*FeatureHealth) reportFeatureErrorRes() {}
+func (*FeatureHealth) getFeatureHealthRes() {}
 
 // Ref: #/components/schemas/HealthResponse
 type HealthResponse struct {

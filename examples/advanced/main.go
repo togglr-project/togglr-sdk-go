@@ -53,12 +53,11 @@ func main() {
 		WithContext("retry_count", 2).
 		WithContext("request_id", "req_12345")
 
-	health, isPending, err := client.ReportError(context.Background(), featureKey, timeoutError)
+	err = client.ReportError(context.Background(), featureKey, timeoutError)
 	if err != nil {
 		log.Printf("Error reporting timeout: %v", err)
 	} else {
-		fmt.Printf("After timeout error - enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			health.Enabled, health.AutoDisabled, isPending)
+		fmt.Printf("Timeout error reported successfully - queued for processing\n")
 	}
 
 	// Report a validation error
@@ -67,12 +66,11 @@ func main() {
 		WithContext("error_code", "INVALID_FORMAT").
 		WithContext("user_id", "user123")
 
-	health, isPending, err = client.ReportError(context.Background(), featureKey, validationError)
+	err = client.ReportError(context.Background(), featureKey, validationError)
 	if err != nil {
 		log.Printf("Error reporting validation error: %v", err)
 	} else {
-		fmt.Printf("After validation error - enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			health.Enabled, health.AutoDisabled, isPending)
+		fmt.Printf("Validation error reported successfully - queued for processing\n")
 	}
 
 	// Report a service unavailable error
@@ -82,12 +80,11 @@ func main() {
 		WithContext("region", "us-east-1").
 		WithContext("timestamp", time.Now().Unix())
 
-	health, isPending, err = client.ReportError(context.Background(), featureKey, serviceError)
+	err = client.ReportError(context.Background(), featureKey, serviceError)
 	if err != nil {
 		log.Printf("Error reporting service error: %v", err)
 	} else {
-		fmt.Printf("After service error - enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			health.Enabled, health.AutoDisabled, isPending)
+		fmt.Printf("Service error reported successfully - queued for processing\n")
 	}
 
 	// Example 3: Feature health monitoring
@@ -135,12 +132,11 @@ func main() {
 			WithContext("error_index", i).
 			WithContext("timestamp", time.Now().Unix())
 
-		health, _, err := client.ReportError(context.Background(), featureKey, batchError)
+		err := client.ReportError(context.Background(), featureKey, batchError)
 		if err != nil {
 			log.Printf("Error reporting batch error %d: %v", i+1, err)
 		} else {
-			fmt.Printf("Batch error %d - enabled=%t, auto_disabled=%t\n",
-				i+1, health.Enabled, health.AutoDisabled)
+			fmt.Printf("Batch error %d reported successfully - queued for processing\n", i+1)
 		}
 
 		// Small delay between errors
@@ -172,23 +168,22 @@ func main() {
 		WithContext("test_id", "timeout_001").
 		WithContext("timeout_sec", 5)
 
-	health, isPending, err = client.ReportError(ctx, featureKey, contextTimeoutError)
+	err = client.ReportError(ctx, featureKey, contextTimeoutError)
 	if err != nil {
 		log.Printf("Error with timeout context: %v", err)
 	} else {
-		fmt.Printf("Timeout test completed - enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			health.Enabled, health.AutoDisabled, isPending)
+		fmt.Printf("Timeout test completed - error reported successfully - queued for processing\n")
 	}
 
 	// Example 6: Health check with context timeout
 	fmt.Println("\n=== Health Check with Context Timeout ===")
 
-	health, err = client.GetFeatureHealth(ctx, featureKey)
+	health, err := client.GetFeatureHealth(ctx, featureKey)
 	if err != nil {
 		log.Printf("Error getting health with timeout: %v", err)
 	} else {
-		fmt.Printf("Health with timeout - enabled=%t, auto_disabled=%t, pending_change=%t\n",
-			health.Enabled, health.AutoDisabled, isPending)
+		fmt.Printf("Health with timeout - enabled=%t, auto_disabled=%t\n",
+			health.Enabled, health.AutoDisabled)
 	}
 
 	// Example 7: Health check with context timeout

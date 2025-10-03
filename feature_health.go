@@ -22,7 +22,7 @@ type FeatureHealth struct {
 // GetFeatureHealth retrieves the health status of a feature
 func (c *Client) GetFeatureHealth(ctx context.Context, featureKey string) (*FeatureHealth, error) {
 	start := time.Now()
-	c.metrics.IncEvaluateRequest()
+	c.metrics.IncFeatureHealthRequest()
 
 	// Create context with timeout
 	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
@@ -32,9 +32,9 @@ func (c *Client) GetFeatureHealth(ctx context.Context, featureKey string) (*Feat
 	health, err := c.getFeatureHealthWithRetries(ctx, featureKey)
 
 	// Record metrics
-	c.metrics.ObserveEvaluateLatency(time.Since(start))
+	c.metrics.ObserveFeatureHealthLatency(time.Since(start))
 	if err != nil {
-		c.metrics.IncEvaluateError("get_health_failed")
+		c.metrics.IncFeatureHealthError("get_health_failed")
 	}
 
 	return health, err
@@ -106,4 +106,28 @@ func (c *Client) IsFeatureHealthy(ctx context.Context, featureKey string) (bool,
 	}
 
 	return health.Enabled && !health.AutoDisabled, nil
+}
+
+// convertFeatureHealth converts API FeatureHealth to SDK FeatureHealth
+func convertFeatureHealth(apiHealth *api.FeatureHealth) *FeatureHealth {
+	health := &FeatureHealth{
+		FeatureKey:     apiHealth.FeatureKey,
+		EnvironmentKey: apiHealth.EnvironmentKey,
+		Enabled:        apiHealth.Enabled,
+		AutoDisabled:   apiHealth.AutoDisabled,
+	}
+
+	if apiHealth.ErrorRate.IsSet() {
+		health.ErrorRate = &apiHealth.ErrorRate.Value
+	}
+
+	if apiHealth.Threshold.IsSet() {
+		health.Threshold = &apiHealth.Threshold.Value
+	}
+
+	if apiHealth.LastErrorAt.IsSet() {
+		health.LastErrorAt = &apiHealth.LastErrorAt.Value
+	}
+
+	return health
 }

@@ -46,24 +46,24 @@ func (c *Client) ReportError(
 	ctx context.Context,
 	featureKey string,
 	report *ErrorReport,
-) (*FeatureHealth, bool, error) {
+) error {
 	start := time.Now()
-	c.metrics.IncEvaluateRequest()
+	c.metrics.IncErrorReportRequest()
 
 	// Create context with timeout
 	ctx, cancel := context.WithTimeout(ctx, c.cfg.Timeout)
 	defer cancel()
 
 	// Make API call with retries
-	health, isPending, err := c.reportErrorWithRetries(ctx, featureKey, report)
+	err := c.reportErrorWithRetries(ctx, featureKey, report)
 
 	// Record metrics
-	c.metrics.ObserveEvaluateLatency(time.Since(start))
+	c.metrics.ObserveErrorReportLatency(time.Since(start))
 	if err != nil {
-		c.metrics.IncEvaluateError("report_error_failed")
+		c.metrics.IncErrorReportError("report_error_failed")
 	}
 
-	return health, isPending, err
+	return err
 }
 
 // reportErrorWithRetries performs the actual API call with retry logic
@@ -71,7 +71,7 @@ func (c *Client) reportErrorWithRetries(
 	ctx context.Context,
 	featureKey string,
 	report *ErrorReport,
-) (*FeatureHealth, bool, error) {
+) error {
 	var lastErr error
 
 	for attempt := 0; attempt <= c.cfg.Retries; attempt++ {
@@ -82,7 +82,7 @@ func (c *Client) reportErrorWithRetries(
 
 			select {
 			case <-ctx.Done():
-				return nil, false, ctx.Err()
+				return ctx.Err()
 			case <-time.After(delay):
 			}
 		}
@@ -112,22 +112,20 @@ func (c *Client) reportErrorWithRetries(
 		resp, err := c.apiClient.ReportFeatureError(ctx, apiReq, params)
 		if err == nil {
 			// Handle response
-			switch r := resp.(type) {
-			case *api.FeatureHealth:
-				return convertFeatureHealth(r), false, nil
+			switch resp.(type) {
 			case *api.ReportFeatureErrorAccepted:
-				// 202 response - error reported but evaluation pending
-				return &FeatureHealth{FeatureKey: featureKey}, true, nil
+				// 202 response - error reported successfully, queued for processing
+				return nil
 			case *api.ErrorBadRequest:
-				return nil, false, ErrBadRequest
+				return ErrBadRequest
 			case *api.ErrorUnauthorized:
-				return nil, false, ErrUnauthorized
+				return ErrUnauthorized
 			case *api.ErrorNotFound:
-				return nil, false, ErrFeatureNotFound
+				return ErrFeatureNotFound
 			case *api.ErrorInternalServerError:
-				return nil, false, ErrInternalServerError
+				return ErrInternalServerError
 			default:
-				return nil, false, fmt.Errorf("unexpected response type: %T", resp)
+				return fmt.Errorf("unexpected response type: %T", resp)
 			}
 		}
 
@@ -142,29 +140,5 @@ func (c *Client) reportErrorWithRetries(
 		c.logger.Debug("retrying error report due to error", "attempt", attempt, "error", err)
 	}
 
-	return nil, false, lastErr
-}
-
-// convertFeatureHealth converts API FeatureHealth to SDK FeatureHealth
-func convertFeatureHealth(apiHealth *api.FeatureHealth) *FeatureHealth {
-	health := &FeatureHealth{
-		FeatureKey:     apiHealth.FeatureKey,
-		EnvironmentKey: apiHealth.EnvironmentKey,
-		Enabled:        apiHealth.Enabled,
-		AutoDisabled:   apiHealth.AutoDisabled,
-	}
-
-	if apiHealth.ErrorRate.IsSet() {
-		health.ErrorRate = &apiHealth.ErrorRate.Value
-	}
-
-	if apiHealth.Threshold.IsSet() {
-		health.Threshold = &apiHealth.Threshold.Value
-	}
-
-	if apiHealth.LastErrorAt.IsSet() {
-		health.LastErrorAt = &apiHealth.LastErrorAt.Value
-	}
-
-	return health
+	return lastErr
 }
