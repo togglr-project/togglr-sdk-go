@@ -14,6 +14,12 @@ func WithBaseURL(url string) Option {
 	}
 }
 
+func WithInsecure() Option {
+	return func(config *Config) {
+		config.Insecure = true
+	}
+}
+
 // WithTimeout sets the request timeout
 func WithTimeout(d time.Duration) Option {
 	return func(cfg *Config) {

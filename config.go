@@ -17,6 +17,7 @@ type Config struct {
 	Logger       Logger        // optional (interface)
 	Metrics      Metrics       // optional (interface)
 	MaxConns     int           // optional transport tuning
+	Insecure     bool
 }
 
 // Backoff represents the backoff policy

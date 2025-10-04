@@ -2,6 +2,7 @@ package togglr
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"time"
@@ -43,6 +44,9 @@ func NewClient(cfg *Config, opts ...Option) (*Client, error) {
 		MaxIdleConns:        cfg.MaxConns,
 		MaxIdleConnsPerHost: cfg.MaxConns,
 		IdleConnTimeout:     90 * time.Second,
+	}
+	if cfg.Insecure {
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	httpClient := &http.Client{
