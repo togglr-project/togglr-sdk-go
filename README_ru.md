@@ -75,8 +75,7 @@ client, err := togglr.NewClientWithDefaults("api-key",
     togglr.WithBaseURL("https://api.togglr.com"),
     togglr.WithTimeout(2*time.Second),
     togglr.WithRetries(3),
-    togglr.WithCache(1000, 10*time.Second),
-    togglr.WithCircuitBreaker(true),
+    togglr.WithCache(1000, 10*time.Second)
 )
 ```
 
