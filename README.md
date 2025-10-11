@@ -424,4 +424,3 @@ Complete usage examples are located in `examples/`:
 - `examples/simple/` - Basic usage example
 - `examples/advanced/` - Advanced features and error reporting
 - `examples/tls/` - TLS certificate configuration example
-- `examples/tls_advanced/` - Advanced TLS configuration examples
