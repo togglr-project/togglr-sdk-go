@@ -11,11 +11,12 @@ import (
 
 func main() {
 	// Create client with advanced configuration
-	client, err := togglr.NewClientWithDefaults("your-api-key-here",
-		togglr.WithBaseURL("http://localhost:8090"),
+	client, err := togglr.NewClientWithDefaults("42b6f8f1-630c-400c-97bd-a3454a07f700",
+		togglr.WithBaseURL("https://localhost"),
 		togglr.WithTimeout(2*time.Second),
 		togglr.WithCache(1000, 30*time.Second),
 		togglr.WithRetries(3),
+		togglr.WithInsecure(),
 	)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)

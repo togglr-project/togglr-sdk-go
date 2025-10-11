@@ -70,3 +70,32 @@ func WithMaxConns(maxConns int) Option {
 		cfg.MaxConns = maxConns
 	}
 }
+
+// WithClientCert sets the client certificate file path
+func WithClientCert(certPath string) Option {
+	return func(cfg *Config) {
+		cfg.ClientCert = certPath
+	}
+}
+
+// WithClientKey sets the client private key file path
+func WithClientKey(keyPath string) Option {
+	return func(cfg *Config) {
+		cfg.ClientKey = keyPath
+	}
+}
+
+// WithCACert sets the CA certificate file path
+func WithCACert(caPath string) Option {
+	return func(cfg *Config) {
+		cfg.CACert = caPath
+	}
+}
+
+// WithClientCertAndKey sets both client certificate and key file paths
+func WithClientCertAndKey(certPath, keyPath string) Option {
+	return func(cfg *Config) {
+		cfg.ClientCert = certPath
+		cfg.ClientKey = keyPath
+	}
+}

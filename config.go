@@ -18,6 +18,10 @@ type Config struct {
 	Metrics      Metrics       // optional (interface)
 	MaxConns     int           // optional transport tuning
 	Insecure     bool
+	// TLS configuration
+	ClientCert string // path to client certificate file
+	ClientKey  string // path to client private key file
+	CACert     string // path to CA certificate file
 }
 
 // Backoff represents the backoff policy

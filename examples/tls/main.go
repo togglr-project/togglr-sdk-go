@@ -10,11 +10,14 @@ import (
 )
 
 func main() {
-	// Create client with default configuration
+	// Example of using TLS certificates for secure connection
 	client, err := togglr.NewClientWithDefaults("42b6f8f1-630c-400c-97bd-a3454a07f700",
-		togglr.WithBaseURL("http://localhost:8090"),
-		togglr.WithTimeout(1*time.Second),
-		togglr.WithCache(1000, 10*time.Second),
+		togglr.WithBaseURL("https://localhost"),
+		// Use client certificate and key for mutual TLS authentication
+		togglr.WithClientCertAndKey("/path/to/client.crt", "/path/to/client.key"),
+		// Use custom CA certificate for server verification
+		togglr.WithCACert("/path/to/ca.crt"),
+		togglr.WithTimeout(5*time.Second),
 		togglr.WithRetries(3),
 	)
 	if err != nil {
@@ -22,7 +25,7 @@ func main() {
 	}
 	defer client.Close()
 
-	// Build request context using builder methods
+	// Build request context
 	reqCtx := togglr.NewContext().
 		WithUserID("user123").
 		WithCountry("US").
@@ -54,22 +57,6 @@ func main() {
 	}
 
 	fmt.Printf("Feature %s is enabled: %t\n", featureKey, isEnabled)
-
-	// Use default value fallback
-	isEnabled = client.IsEnabledOrDefault(featureKey, reqCtx, false)
-	fmt.Printf("Feature %s with default fallback: %t\n", featureKey, isEnabled)
-
-	// Example with context cancellation
-	ctxWithTimeout, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-	defer cancel()
-
-	res = client.EvaluateWithContext(ctxWithTimeout, "another_feature", reqCtx)
-	if err := res.Err(); err != nil {
-		log.Printf("Error with context: %v", err)
-		return
-	}
-
-	fmt.Printf("Another feature: enabled=%t, value=%s, found=%t\n", res.Enabled(), res.Value(), res.Found())
 
 	// Health check
 	if err := client.HealthCheck(context.Background()); err != nil {

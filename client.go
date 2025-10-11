@@ -3,8 +3,10 @@ package togglr
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	api "github.com/togglr-project/togglr-sdk-go/internal/generated/client"
@@ -45,9 +47,37 @@ func NewClient(cfg *Config, opts ...Option) (*Client, error) {
 		MaxIdleConnsPerHost: cfg.MaxConns,
 		IdleConnTimeout:     90 * time.Second,
 	}
+
+	// Configure TLS
+	tlsConfig := &tls.Config{}
+
 	if cfg.Insecure {
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+		tlsConfig.InsecureSkipVerify = true
 	}
+
+	// Load client certificate and key if provided
+	if cfg.ClientCert != "" && cfg.ClientKey != "" {
+		cert, err := tls.LoadX509KeyPair(cfg.ClientCert, cfg.ClientKey)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load client certificate: %w", err)
+		}
+		tlsConfig.Certificates = []tls.Certificate{cert}
+	}
+
+	// Load CA certificate if provided
+	if cfg.CACert != "" {
+		caCert, err := os.ReadFile(cfg.CACert)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read CA certificate: %w", err)
+		}
+		caCertPool := x509.NewCertPool()
+		if !caCertPool.AppendCertsFromPEM(caCert) {
+			return nil, fmt.Errorf("failed to parse CA certificate")
+		}
+		tlsConfig.RootCAs = caCertPool
+	}
+
+	transport.TLSClientConfig = tlsConfig
 
 	httpClient := &http.Client{
 		Transport: transport,

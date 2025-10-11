@@ -79,6 +79,52 @@ client, err := togglr.NewClientWithDefaults("api-key",
 )
 ```
 
+### TLS Configuration
+
+The SDK supports TLS client certificates and custom CA certificates for secure connections:
+
+```go
+// Basic TLS with client certificate
+client, err := togglr.NewClientWithDefaults("api-key",
+    togglr.WithBaseURL("https://api.togglr.com"),
+    togglr.WithClientCertAndKey("/path/to/client.crt", "/path/to/client.key"),
+)
+
+// TLS with custom CA certificate
+client, err := togglr.NewClientWithDefaults("api-key",
+    togglr.WithBaseURL("https://api.togglr.com"),
+    togglr.WithCACert("/path/to/ca.crt"),
+)
+
+// Full TLS configuration
+client, err := togglr.NewClientWithDefaults("api-key",
+    togglr.WithBaseURL("https://api.togglr.com"),
+    togglr.WithClientCertAndKey("/path/to/client.crt", "/path/to/client.key"),
+    togglr.WithCACert("/path/to/ca.crt"),
+)
+
+// Individual certificate options
+client, err := togglr.NewClientWithDefaults("api-key",
+    togglr.WithBaseURL("https://api.togglr.com"),
+    togglr.WithClientCert("/path/to/client.crt"),
+    togglr.WithClientKey("/path/to/client.key"),
+    togglr.WithCACert("/path/to/ca.crt"),
+)
+
+// Insecure mode (skip TLS verification) - use with caution
+client, err := togglr.NewClientWithDefaults("api-key",
+    togglr.WithBaseURL("https://api.togglr.com"),
+    togglr.WithInsecure(),
+)
+```
+
+Available TLS options:
+- `WithClientCert(certPath)` - Set client certificate file path
+- `WithClientKey(keyPath)` - Set client private key file path  
+- `WithClientCertAndKey(certPath, keyPath)` - Set both client certificate and key
+- `WithCACert(caPath)` - Set CA certificate file path for server verification
+- `WithInsecure()` - Skip TLS verification (not recommended for production)
+
 ## Usage
 
 ### Creating request context
@@ -373,4 +419,9 @@ make clean
 
 ## Examples
 
-Complete usage examples are located in `examples/`.
+Complete usage examples are located in `examples/`:
+
+- `examples/simple/` - Basic usage example
+- `examples/advanced/` - Advanced features and error reporting
+- `examples/tls/` - TLS certificate configuration example
+- `examples/tls_advanced/` - Advanced TLS configuration examples
