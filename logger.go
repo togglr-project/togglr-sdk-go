@@ -1,6 +1,5 @@
 package togglr
 
-// Logger interface for logging
 type Logger interface {
 	Debug(msg string, kv ...any)
 	Info(msg string, kv ...any)
@@ -8,7 +7,6 @@ type Logger interface {
 	Error(msg string, kv ...any)
 }
 
-// NoOpLogger is a no-op implementation of Logger
 type NoOpLogger struct{}
 
 func (NoOpLogger) Debug(msg string, kv ...any) {}

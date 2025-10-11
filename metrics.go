@@ -2,7 +2,6 @@ package togglr
 
 import "time"
 
-// Metrics interface for collecting metrics
 type Metrics interface {
 	IncEvaluateRequest()
 	IncEvaluateError(code string)
@@ -17,7 +16,6 @@ type Metrics interface {
 	ObserveFeatureHealthLatency(d time.Duration)
 }
 
-// NoOpMetrics is a no-op implementation of Metrics
 type NoOpMetrics struct{}
 
 func (NoOpMetrics) IncEvaluateRequest()                         {}

@@ -4,7 +4,6 @@ import (
 	"errors"
 )
 
-// Predefined error types
 var (
 	ErrUnauthorized        = errors.New("unauthorized")
 	ErrForbidden           = errors.New("forbidden")
@@ -15,7 +14,6 @@ var (
 	ErrInternalServerError = errors.New("internal server error")
 )
 
-// APIError represents an API error with additional context
 type APIError struct {
 	Code       string
 	Message    string
@@ -35,7 +33,6 @@ func (e *APIError) Unwrap() error {
 	return e.Err
 }
 
-// IsAPIError checks if an error is an API error
 func IsAPIError(err error) bool {
 	var apiErr *APIError
 	ok := errors.As(err, &apiErr)
@@ -43,7 +40,6 @@ func IsAPIError(err error) bool {
 	return ok
 }
 
-// GetAPIErrorCode returns the API error code if the error is an APIError
 func GetAPIErrorCode(err error) (string, bool) {
 	var apiErr *APIError
 	if errors.As(err, &apiErr) {

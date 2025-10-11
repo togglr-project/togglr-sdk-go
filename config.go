@@ -4,34 +4,30 @@ import (
 	"time"
 )
 
-// Config represents the SDK configuration
 type Config struct {
-	BaseURL      string        // default: "http://localhost:8090"
-	APIKey       string        // required
-	Timeout      time.Duration // default: 800*time.Millisecond
-	Retries      int           // default: 2
-	Backoff      Backoff       // backoff policy struct, default exponential
-	CacheEnabled bool          // default: false
-	CacheSize    int           // default: 100
-	CacheTTL     time.Duration // default: 5*time.Second
-	Logger       Logger        // optional (interface)
-	Metrics      Metrics       // optional (interface)
-	MaxConns     int           // optional transport tuning
+	BaseURL      string
+	APIKey       string
+	Timeout      time.Duration
+	Retries      int
+	Backoff      Backoff
+	CacheEnabled bool
+	CacheSize    int
+	CacheTTL     time.Duration
+	Logger       Logger
+	Metrics      Metrics
+	MaxConns     int
 	Insecure     bool
-	// TLS configuration
-	ClientCert string // path to client certificate file
-	ClientKey  string // path to client private key file
-	CACert     string // path to CA certificate file
+	ClientCert   string
+	ClientKey    string
+	CACert       string
 }
 
-// Backoff represents the backoff policy
 type Backoff struct {
-	BaseDelay time.Duration // default: 100ms
-	MaxDelay  time.Duration // default: 2s
-	Factor    float64       // default: 2.0
+	BaseDelay time.Duration
+	MaxDelay  time.Duration
+	Factor    float64
 }
 
-// DefaultBackoff returns the default backoff configuration
 func DefaultBackoff() Backoff {
 	return Backoff{
 		BaseDelay: 100 * time.Millisecond,
@@ -40,7 +36,6 @@ func DefaultBackoff() Backoff {
 	}
 }
 
-// DefaultConfig creates a default configuration with the provided API key
 func DefaultConfig(apiKey string) *Config {
 	return &Config{
 		BaseURL:      "http://localhost:8090",

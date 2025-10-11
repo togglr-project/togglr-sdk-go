@@ -1,6 +1,5 @@
 package togglr
 
-// Predefined attribute keys for request context
 const (
 	AttrUserID         = "user.id"
 	AttrUserEmail      = "user.email"
