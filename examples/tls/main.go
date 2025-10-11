@@ -16,7 +16,7 @@ func main() {
 		// Use client certificate and key for mutual TLS authentication
 		togglr.WithClientCertAndKey("/path/to/client.crt", "/path/to/client.key"),
 		// Use custom CA certificate for server verification
-		togglr.WithCACert("/path/to/ca.crt"),
+		//togglr.WithCACert("/path/to/ca.crt"),
 		togglr.WithTimeout(5*time.Second),
 		togglr.WithRetries(3),
 	)
