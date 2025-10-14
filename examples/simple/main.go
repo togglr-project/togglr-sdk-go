@@ -113,4 +113,48 @@ func main() {
 	} else {
 		fmt.Printf("Feature is healthy: %t\n", isHealthy)
 	}
+
+	// Example: Track events for analytics
+	// Track impression event (recommended for each evaluation)
+	impressionEvent := togglr.NewTrackEvent("A", togglr.EventTypeSuccess).
+		WithContext("user.id", "user123").
+		WithContext("country", "US").
+		WithContext("device_type", "mobile").
+		WithDedupKey("impression-user123-new_ui")
+
+	err = client.TrackEvent(context.Background(), featureKey, impressionEvent)
+	if err != nil {
+		log.Printf("Error tracking impression event: %v", err)
+	} else {
+		fmt.Printf("Impression event tracked successfully\n")
+	}
+
+	// Track conversion event with reward
+	conversionEvent := togglr.NewTrackEvent("A", togglr.EventTypeSuccess).
+		WithReward(1.0).
+		WithContext("user.id", "user123").
+		WithContext("conversion_type", "purchase").
+		WithContext("order_value", 99.99).
+		WithDedupKey("conversion-user123-new_ui")
+
+	err = client.TrackEvent(context.Background(), featureKey, conversionEvent)
+	if err != nil {
+		log.Printf("Error tracking conversion event: %v", err)
+	} else {
+		fmt.Printf("Conversion event tracked successfully\n")
+	}
+
+	// Track error event
+	errorEvent := togglr.NewTrackEvent("B", togglr.EventTypeError).
+		WithContext("user.id", "user123").
+		WithContext("error_type", "timeout").
+		WithContext("error_message", "Service did not respond in 5s").
+		WithDedupKey("error-user123-new_ui")
+
+	err = client.TrackEvent(context.Background(), featureKey, errorEvent)
+	if err != nil {
+		log.Printf("Error tracking error event: %v", err)
+	} else {
+		fmt.Printf("Error event tracked successfully\n")
+	}
 }

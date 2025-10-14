@@ -16,3 +16,8 @@ type ReportFeatureErrorParams struct {
 type SdkV1FeaturesFeatureKeyEvaluatePostParams struct {
 	FeatureKey string
 }
+
+// TrackFeatureEventParams is parameters of TrackFeatureEvent operation.
+type TrackFeatureEventParams struct {
+	FeatureKey string
+}
