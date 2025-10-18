@@ -14,6 +14,9 @@ type Metrics interface {
 	IncFeatureHealthRequest()
 	IncFeatureHealthError(code string)
 	ObserveFeatureHealthLatency(d time.Duration)
+	IncTrackEventRequest()
+	IncTrackEventError(code string)
+	ObserveTrackEventLatency(d time.Duration)
 }
 
 type NoOpMetrics struct{}
@@ -29,3 +32,6 @@ func (NoOpMetrics) ObserveErrorReportLatency(d time.Duration)   {}
 func (NoOpMetrics) IncFeatureHealthRequest()                    {}
 func (NoOpMetrics) IncFeatureHealthError(code string)           {}
 func (NoOpMetrics) ObserveFeatureHealthLatency(d time.Duration) {}
+func (NoOpMetrics) IncTrackEventRequest()                       {}
+func (NoOpMetrics) IncTrackEventError(code string)              {}
+func (NoOpMetrics) ObserveTrackEventLatency(d time.Duration)    {}

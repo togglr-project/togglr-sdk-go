@@ -68,6 +68,7 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 func (*ErrorBadRequest) getFeatureHealthRes()                    {}
 func (*ErrorBadRequest) reportFeatureErrorRes()                  {}
 func (*ErrorBadRequest) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+func (*ErrorBadRequest) trackFeatureEventRes()                   {}
 
 type ErrorBadRequestError struct {
 	Message OptString `json:"message"`
@@ -116,6 +117,7 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 func (*ErrorInternalServerError) getFeatureHealthRes()                    {}
 func (*ErrorInternalServerError) reportFeatureErrorRes()                  {}
 func (*ErrorInternalServerError) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+func (*ErrorInternalServerError) trackFeatureEventRes()                   {}
 
 type ErrorInternalServerErrorError struct {
 	Message OptString `json:"message"`
@@ -150,6 +152,7 @@ func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
 func (*ErrorNotFound) getFeatureHealthRes()                    {}
 func (*ErrorNotFound) reportFeatureErrorRes()                  {}
 func (*ErrorNotFound) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+func (*ErrorNotFound) trackFeatureEventRes()                   {}
 
 type ErrorNotFoundError struct {
 	Message OptString `json:"message"`
@@ -194,6 +197,39 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 func (*ErrorStatusCode) getFeatureHealthRes()                    {}
 func (*ErrorStatusCode) reportFeatureErrorRes()                  {}
 func (*ErrorStatusCode) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+func (*ErrorStatusCode) trackFeatureEventRes()                   {}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorTooManyRequests
+type ErrorTooManyRequests struct {
+	Error ErrorTooManyRequestsError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorTooManyRequests) GetError() ErrorTooManyRequestsError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorTooManyRequests) SetError(val ErrorTooManyRequestsError) {
+	s.Error = val
+}
+
+func (*ErrorTooManyRequests) trackFeatureEventRes() {}
+
+type ErrorTooManyRequestsError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorTooManyRequestsError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorTooManyRequestsError) SetMessage(val OptString) {
+	s.Message = val
+}
 
 // Merged schema.
 // Ref: #/components/schemas/ErrorUnauthorized
@@ -214,6 +250,7 @@ func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
 func (*ErrorUnauthorized) getFeatureHealthRes()                    {}
 func (*ErrorUnauthorized) reportFeatureErrorRes()                  {}
 func (*ErrorUnauthorized) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+func (*ErrorUnauthorized) trackFeatureEventRes()                   {}
 
 type ErrorUnauthorizedError struct {
 	Message OptString `json:"message"`
@@ -657,6 +694,52 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
+// NewOptTrackRequestContext returns new OptTrackRequestContext with value set to v.
+func NewOptTrackRequestContext(v TrackRequestContext) OptTrackRequestContext {
+	return OptTrackRequestContext{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptTrackRequestContext is optional TrackRequestContext.
+type OptTrackRequestContext struct {
+	Value TrackRequestContext
+	Set   bool
+}
+
+// IsSet returns true if OptTrackRequestContext was set.
+func (o OptTrackRequestContext) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptTrackRequestContext) Reset() {
+	var v TrackRequestContext
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptTrackRequestContext) SetTo(v TrackRequestContext) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptTrackRequestContext) Get() (v TrackRequestContext, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptTrackRequestContext) Or(d TrackRequestContext) TrackRequestContext {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // ReportFeatureErrorAccepted is response for ReportFeatureError operation.
 type ReportFeatureErrorAccepted struct{}
 
@@ -678,3 +761,147 @@ func (s *SdkV1HealthGetDef) SetStatusCode(val int) {
 }
 
 func (*SdkV1HealthGetDef) sdkV1HealthGetRes() {}
+
+// TrackFeatureEventAccepted is response for TrackFeatureEvent operation.
+type TrackFeatureEventAccepted struct{}
+
+func (*TrackFeatureEventAccepted) trackFeatureEventRes() {}
+
+// Event sent from SDK. SDK SHOULD send an impression event for each evaluation (recommended).
+// Conversions / errors / custom events are used to update algorithm statistics.
+// Ref: #/components/schemas/TrackRequest
+type TrackRequest struct {
+	// Variant key returned by evaluate (e.g. "A", "v2").
+	VariantKey string `json:"variant_key"`
+	// Type of event (e.g. "success", "failure", "error").
+	EventType TrackRequestEventType `json:"event_type"`
+	// Numeric reward associated with event (e.g. 1.0 for conversion). Default 0.
+	Reward OptFloat32 `json:"reward"`
+	// Arbitrary context passed by SDK (user id, session, metadata).
+	Context OptTrackRequestContext `json:"context"`
+	// Event timestamp. If omitted, server time will be used.
+	CreatedAt OptDateTime `json:"created_at"`
+	// Optional idempotency key to deduplicate duplicate events from SDK retries.
+	DedupKey OptString `json:"dedup_key"`
+}
+
+// GetVariantKey returns the value of VariantKey.
+func (s *TrackRequest) GetVariantKey() string {
+	return s.VariantKey
+}
+
+// GetEventType returns the value of EventType.
+func (s *TrackRequest) GetEventType() TrackRequestEventType {
+	return s.EventType
+}
+
+// GetReward returns the value of Reward.
+func (s *TrackRequest) GetReward() OptFloat32 {
+	return s.Reward
+}
+
+// GetContext returns the value of Context.
+func (s *TrackRequest) GetContext() OptTrackRequestContext {
+	return s.Context
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *TrackRequest) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetDedupKey returns the value of DedupKey.
+func (s *TrackRequest) GetDedupKey() OptString {
+	return s.DedupKey
+}
+
+// SetVariantKey sets the value of VariantKey.
+func (s *TrackRequest) SetVariantKey(val string) {
+	s.VariantKey = val
+}
+
+// SetEventType sets the value of EventType.
+func (s *TrackRequest) SetEventType(val TrackRequestEventType) {
+	s.EventType = val
+}
+
+// SetReward sets the value of Reward.
+func (s *TrackRequest) SetReward(val OptFloat32) {
+	s.Reward = val
+}
+
+// SetContext sets the value of Context.
+func (s *TrackRequest) SetContext(val OptTrackRequestContext) {
+	s.Context = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *TrackRequest) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetDedupKey sets the value of DedupKey.
+func (s *TrackRequest) SetDedupKey(val OptString) {
+	s.DedupKey = val
+}
+
+// Arbitrary context passed by SDK (user id, session, metadata).
+type TrackRequestContext map[string]jx.Raw
+
+func (s *TrackRequestContext) init() TrackRequestContext {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Type of event (e.g. "success", "failure", "error").
+type TrackRequestEventType string
+
+const (
+	TrackRequestEventTypeSuccess TrackRequestEventType = "success"
+	TrackRequestEventTypeFailure TrackRequestEventType = "failure"
+	TrackRequestEventTypeError   TrackRequestEventType = "error"
+)
+
+// AllValues returns all TrackRequestEventType values.
+func (TrackRequestEventType) AllValues() []TrackRequestEventType {
+	return []TrackRequestEventType{
+		TrackRequestEventTypeSuccess,
+		TrackRequestEventTypeFailure,
+		TrackRequestEventTypeError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TrackRequestEventType) MarshalText() ([]byte, error) {
+	switch s {
+	case TrackRequestEventTypeSuccess:
+		return []byte(s), nil
+	case TrackRequestEventTypeFailure:
+		return []byte(s), nil
+	case TrackRequestEventTypeError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TrackRequestEventType) UnmarshalText(data []byte) error {
+	switch TrackRequestEventType(data) {
+	case TrackRequestEventTypeSuccess:
+		*s = TrackRequestEventTypeSuccess
+		return nil
+	case TrackRequestEventTypeFailure:
+		*s = TrackRequestEventTypeFailure
+		return nil
+	case TrackRequestEventTypeError:
+		*s = TrackRequestEventTypeError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
